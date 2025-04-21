@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-pod
+spec:
+  volumes:
+    - name: shared-storage
+      emptyDir: {}
+
+  containers:
+    # Container 1: Web Server (Exposes HTTP, Writes to Shared Volume)
+    - name: web-server
+      image: nginx
+      env:
+        - name: MESSAGE
+          value: "Hello from Web Server!"
+      volumeMounts:
+        - name: shared-storage
+          mountPath: /usr/share/nginx/html
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          echo "Shared Data: Hello from Web Server!" > /usr/share/nginx/html/index.html;
+          nginx -g "daemon off;"
+
+    # Container 2: Reads from Environment Variable
+    - name: env-reader
+      image: busybox
+      env:
+        - name: MESSAGE
+          value: "Hello from Web Server!"
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          echo "Pod Name: $MESSAGE";
+          echo "Env Var from Web Server: $MESSAGE";
+          sleep 3600;
+
+    # Container 3: Reads from Shared Volume
+    - name: volume-reader
+      image: busybox
+      volumeMounts:
+        - name: shared-storage
+          mountPath: /data
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          echo "Reading from Shared Volume:";
+          cat /data/index.html || echo "File not found!";
+          sleep 3600;
+
+    # Container 4: Makes HTTP Request to web-server
+    - name: http-client
+      image: curlimages/curl
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          echo "Making HTTP Request to web-server...";
+          curl -s http://localhost/index.html;
+          sleep 3600;
+

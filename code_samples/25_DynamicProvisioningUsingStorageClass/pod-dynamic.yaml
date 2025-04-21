@@ -1,0 +1,17 @@
+# pod-dynamic.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dynamic-pv-pod
+spec:
+  containers:
+    - name: my-container
+      image: busybox
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts:
+        - mountPath: "/data"
+          name: storage
+  volumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: dynamic-pvc

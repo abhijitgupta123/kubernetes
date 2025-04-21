@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx
+spec:
+  serviceName: "nginx"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      initContainers:
+        - name: init-html
+          image: busybox
+          command:
+            - sh
+            - -c
+            - >
+              echo "<h1>This is pod $(hostname)</h1>" > /usr/share/nginx/html/index.html
+          volumeMounts:
+            - name: www
+              mountPath: /usr/share/nginx/html
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+              name: web
+          volumeMounts:
+            - name: www
+              mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+    - metadata:
+        name: www
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: standard
+

@@ -1,0 +1,15 @@
+# pod-oom.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oom-test
+spec:
+  containers:
+    - name: memory-eater
+      image: busybox
+      command: ["sh", "-c", "x=$(head -c 200M </dev/zero | tr '\0' 'x'); sleep 300"]
+      resources:
+        limits:
+          memory: "100Mi"
+        requests:
+          memory: "50Mi"

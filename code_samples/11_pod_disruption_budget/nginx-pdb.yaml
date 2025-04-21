@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: nginx-pdb
+spec:
+  minAvailable: 2  # At least 2 Pods must be running
+  selector:
+    matchLabels:
+      app: nginx
