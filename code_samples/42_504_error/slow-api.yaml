@@ -1,0 +1,40 @@
+# slow-api.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: slow-api
+spec:
+  selector:
+    app: slow-api
+  ports:
+    - port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slow-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slow-api
+  template:
+    metadata:
+      labels:
+        app: slow-api
+    spec:
+      containers:
+      - name: slow-api
+        image: node:18
+        command: ["node", "-e"]
+        args:
+          - |
+            require('http').createServer((req, res) => {
+              setTimeout(() => {
+                res.end('Hello from slow API');
+              }, 10000); // 10 seconds delay
+            }).listen(3000);
+        ports:
+        - containerPort: 3000
+

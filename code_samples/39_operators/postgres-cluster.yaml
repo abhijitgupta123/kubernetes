@@ -1,0 +1,15 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: demo-db
+spec:
+  teamId: "demo"
+  volume:
+    size: 1Gi
+  numberOfInstances: 2
+  users:
+    demo: []
+  databases:
+    demo: demo
+  postgresql:
+    version: "14"
